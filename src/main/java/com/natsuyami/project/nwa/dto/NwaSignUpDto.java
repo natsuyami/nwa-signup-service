@@ -30,6 +30,8 @@ public class NwaSignUpDto implements Serializable {
   @JsonInclude(Include.NON_NULL)
   private String code;
 
+  private Boolean enabled;
+
   public long getId() {
     return id;
   }
@@ -84,5 +86,13 @@ public class NwaSignUpDto implements Serializable {
 
   public void setCode(String code) {
     this.code = code;
+  }
+
+  public Boolean getEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(Boolean enabled) {
+    this.enabled = enabled;
   }
 }
