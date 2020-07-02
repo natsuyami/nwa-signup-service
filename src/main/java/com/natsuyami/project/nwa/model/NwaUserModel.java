@@ -30,11 +30,14 @@ public class NwaUserModel implements Serializable {
   @Column(name = "lastname")
   private String lastName;
 
-  @Column(name = "password")
+  @Column(name = "password", unique = true)
   private String password;
 
-  @Column(name = "email")
+  @Column(name = "email", unique = true)
   private String email;
+
+  @Column(name = "username", unique = true)
+  private String username;
 
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
@@ -84,6 +87,14 @@ public class NwaUserModel implements Serializable {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   protected void onCreate() {

@@ -1,13 +1,14 @@
 package com.natsuyami.project.nwa.controller;
 
+import com.natsuyami.project.nwa.dto.NwaUserDetailsDto;
 import com.natsuyami.project.nwa.service.NwaSignupService;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/signup", produces = "application/json")
@@ -20,9 +21,10 @@ public class NwaSignupController {
   NwaSignupService nwaSignupService;
 
   @PostMapping
-  public Object signup() {
-    LOGGER.info("Initialized signup controller");
+  @ApiOperation(value = "Signup user account", response = String.class)
+  public Object signup(@RequestBody NwaUserDetailsDto signupDto) throws Exception {
+    LOGGER.info("Initialized signup controller signupDto={{}}", signupDto);
 
-    return nwaSignupService.signup();
+    return nwaSignupService.signup(signupDto);
   }
 }
