@@ -39,7 +39,7 @@ public class NwaUserDetailsDto implements Serializable {
 
   @NotNull
   @JsonInclude(Include.NON_NULL)
-  private Integer code;
+  private Integer passcode;
 
   public long getId() {
     return id;
@@ -97,12 +97,12 @@ public class NwaUserDetailsDto implements Serializable {
     this.confirmPassword = confirmPassword;
   }
 
-  public Integer getCode() {
-    return code;
+  public Integer getPasscode() {
+    return passcode;
   }
 
-  public void setCode(Integer code) {
-    this.code = code;
+  public void setPasscode(Integer passcode) {
+    this.passcode = passcode;
   }
 
   @Override
@@ -121,8 +121,8 @@ public class NwaUserDetailsDto implements Serializable {
     builder.append(password);
     builder.append("\", \"confirmPassword\" : \"");
     builder.append(confirmPassword);
-    builder.append("\", \"code\" : \"");
-    builder.append(code);
+    builder.append("\", \"passcode\" : \"");
+    builder.append(passcode);
     builder.append("\"}");
     return builder.toString();
   }

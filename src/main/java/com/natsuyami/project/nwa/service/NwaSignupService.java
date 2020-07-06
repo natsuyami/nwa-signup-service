@@ -2,6 +2,7 @@ package com.natsuyami.project.nwa.service;
 
 import com.natsuyami.project.nwa.common.constant.NwaContentType;
 import com.natsuyami.project.nwa.common.dto.NwaTokenDto;
+import com.natsuyami.project.nwa.common.encrypt.NwaContentEncyption;
 import com.natsuyami.project.nwa.common.encrypt.NwaPasswordEncrypt;
 import com.natsuyami.project.nwa.common.http.NwaRestTemplate;
 import com.natsuyami.project.nwa.common.dto.NwaCredentialDto;
@@ -10,7 +11,6 @@ import com.natsuyami.project.nwa.common.dto.NwaUserKeycloakDto;
 import com.natsuyami.project.nwa.common.dto.NwaUserRoleDto;
 import com.natsuyami.project.nwa.model.NwaUserModel;
 import com.natsuyami.project.nwa.repository.NwaUserRepository;
-import io.netty.util.internal.StringUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,11 +62,11 @@ public class NwaSignupService {
     try {
       if (token != null) {
         NwaUserDetailsDto validateSignupDto = validateUserDetails(signupDto);
-        validateSignupDto.setPassword(NwaPasswordEncrypt.encrypt(signupDto.getPassword(), String.valueOf(signupDto.getCode())));
+        validateSignupDto.setPassword(NwaPasswordEncrypt.encrypt(signupDto.getPassword(), String.valueOf(signupDto.getPasscode())));
         NwaUserModel save = saveUser(validateSignupDto);
 
         if (save != null) {
-          String[] hashVal = NwaPasswordEncrypt.originalEncryption(signupDto.getPassword(), String.valueOf(signupDto.getCode()));
+          String[] hashVal = NwaPasswordEncrypt.originalEncryption(signupDto.getPassword(), String.valueOf(signupDto.getPasscode()));
           save.setPassword(hashVal[0].concat(".").concat(hashVal[1]));
           saveInKeycloak(save, token);
         } else {
@@ -93,6 +93,11 @@ public class NwaSignupService {
           "A-Z]{2,7}$";
 
       Pattern emailValidate = Pattern.compile(emailRegex);
+      signupDto.setUsername(NwaContentEncyption.decrypt(signupDto.getUsername(), privateKey));
+      signupDto.setEmail(NwaContentEncyption.decrypt(signupDto.getEmail(), privateKey));
+      signupDto.setPassword(NwaContentEncyption.decrypt(signupDto.getPassword(), privateKey));
+      signupDto.setConfirmPassword(NwaContentEncyption.decrypt(signupDto.getConfirmPassword(), privateKey));
+      signupDto.setPasscode(NwaContentEncyption.decrypt(signupDto.getPasscode(), privateKey));
 
       //decrypt email first before validate
       if (StringUtils.isNotBlank(signupDto.getEmail())) {
@@ -131,7 +136,7 @@ public class NwaSignupService {
         throw new Exception("Password is required");
       }
 
-      if (signupDto.getCode() == null || signupDto.getCode() < 99999) {
+      if (signupDto.getPasscode() == null || signupDto.getPasscode() < 99999) {
         throw new Exception("Passcode is required and has 6 digit");
       }
 

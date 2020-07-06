@@ -44,7 +44,7 @@ public class NwaSignupServiceTest {
     signupDto.setEmail("dasdasdasd");
     signupDto.setFirstName(null);
     signupDto.setLastName(null);
-    signupDto.setCode(12314);
+    signupDto.setPasscode(12314);
     signupDto.setPassword("Password");
     signupDto.setConfirmPassword("Password");
   }
@@ -89,7 +89,7 @@ public class NwaSignupServiceTest {
     }
 
     try {
-      signupDto.setCode(123456);
+      signupDto.setPasscode(123456);
       nwaSignupService.validateUserDetails(signupDto);
     } catch (Exception e) {
       assertThat("Password must have a special character, number, upper and lower letter", equalTo(e.getMessage()));
