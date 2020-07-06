@@ -39,7 +39,7 @@ public class NwaUserDetailsDto implements Serializable {
 
   @NotNull
   @JsonInclude(Include.NON_NULL)
-  private Integer passcode;
+  private String passcode;
 
   public long getId() {
     return id;
@@ -97,11 +97,11 @@ public class NwaUserDetailsDto implements Serializable {
     this.confirmPassword = confirmPassword;
   }
 
-  public Integer getPasscode() {
+  public String getPasscode() {
     return passcode;
   }
 
-  public void setPasscode(Integer passcode) {
+  public void setPasscode(String passcode) {
     this.passcode = passcode;
   }
 

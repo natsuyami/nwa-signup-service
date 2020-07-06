@@ -56,6 +56,7 @@ public class NwaSignupService {
   public String signup(NwaUserDetailsDto signupDto) throws Exception {
     LOGGER.info("Initialized signup service, signup details signupDto={{}}", signupDto);
 
+    // login to keycloak
     BodyInserters.FormInserter bodyParam = nwaRestTemplate.createToken(clientId, clientSecret, accountUsername, accountPassword);
     NwaTokenDto token = nwaRestTemplate.post("http://localhost:8080/auth/realms/NWASpringBoot/protocol/openid-connect/token", bodyParam, NwaContentType.URL_ENCODED, null, NwaTokenDto.class);
 
@@ -82,6 +83,8 @@ public class NwaSignupService {
   }
 
   public NwaUserDetailsDto validateUserDetails(NwaUserDetailsDto signupDto) throws Exception {
+    LOGGER.info("Validating signup data for the account");
+
     if (signupDto != null) {
       Pattern specialChar = Pattern.compile("[$&+,:;=\\\\\\\\?@#|/'<>.^*()%!-]");
       Pattern specialCharNumber = Pattern.compile("[0-9$&+,:;=\\\\\\\\?@#|/'<>.^*()%!-]");
@@ -93,14 +96,11 @@ public class NwaSignupService {
           "A-Z]{2,7}$";
 
       Pattern emailValidate = Pattern.compile(emailRegex);
-      signupDto.setUsername(NwaContentEncyption.decrypt(signupDto.getUsername(), privateKey));
-      signupDto.setEmail(NwaContentEncyption.decrypt(signupDto.getEmail(), privateKey));
-      signupDto.setPassword(NwaContentEncyption.decrypt(signupDto.getPassword(), privateKey));
-      signupDto.setConfirmPassword(NwaContentEncyption.decrypt(signupDto.getConfirmPassword(), privateKey));
-      signupDto.setPasscode(NwaContentEncyption.decrypt(signupDto.getPasscode(), privateKey));
 
       //decrypt email first before validate
       if (StringUtils.isNotBlank(signupDto.getEmail())) {
+        signupDto.setEmail(NwaContentEncyption.decrypt(signupDto.getEmail(), privateKey));
+
         if (signupDto.getEmail().length() <= 4 || emailValidate.matcher(signupDto.getEmail()).matches() == false) {
           throw new Exception("Invalid email format");
         }
@@ -118,6 +118,8 @@ public class NwaSignupService {
 
       //decrypt username first before validate
       if (StringUtils.isNotBlank(signupDto.getUsername())) {
+        signupDto.setUsername(NwaContentEncyption.decrypt(signupDto.getUsername(), privateKey));
+
         if (signupDto.getUsername().length() <= 4 || specialChar.matcher(signupDto.getUsername()).find()) {
           throw new Exception("Username must not have special character and has a minimum length of 5");
         }
@@ -127,6 +129,9 @@ public class NwaSignupService {
 
       //decrypt password first before validate
       if (StringUtils.isNotBlank(signupDto.getPassword()) && StringUtils.isNotBlank(signupDto.getConfirmPassword())) {
+        signupDto.setPassword(NwaContentEncyption.decrypt(signupDto.getPassword(), privateKey));
+        signupDto.setConfirmPassword(NwaContentEncyption.decrypt(signupDto.getConfirmPassword(), privateKey));
+
         if (!signupDto.getPassword().equals(signupDto.getConfirmPassword())) {
           throw new Exception("Password does not match");
         } else if (signupDto.getPassword().length() < 5 || specialCharNumLet.matcher(signupDto.getPassword()).find() == false) {
@@ -136,8 +141,13 @@ public class NwaSignupService {
         throw new Exception("Password is required");
       }
 
-      if (signupDto.getPasscode() == null || signupDto.getPasscode() < 99999) {
-        throw new Exception("Passcode is required and has 6 digit");
+      if (signupDto.getPasscode() != null) {
+        signupDto.setPasscode(NwaContentEncyption.decrypt(signupDto.getPasscode(), privateKey));
+        if (Integer.valueOf(signupDto.getPasscode()) < 99999) {
+          throw new Exception("Passcode is required and has 6 digit");
+        }
+      } else {
+        throw new Exception("Passcode is required");
       }
 
       return signupDto;
@@ -147,6 +157,8 @@ public class NwaSignupService {
   }
 
   private NwaUserModel saveUser(NwaUserDetailsDto signupDto) {
+    LOGGER.info("Saving new account username={{}}. email={{}}", signupDto.getUsername(), signupDto.getEmail());
+
     NwaUserModel userModel = new NwaUserModel();
     userModel.setUsername(signupDto.getUsername());
     userModel.setEmail(signupDto.getEmail());
