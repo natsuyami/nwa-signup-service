@@ -30,8 +30,8 @@ public class NwaUserModel implements Serializable {
   @Column(name = "lastname")
   private String lastName;
 
-  @Column(name = "password", unique = true)
-  private String password;
+  @Column(name = "passphrase", unique = true)
+  private String passphrase;
 
   @Column(name = "email", unique = true)
   private String email;
@@ -73,12 +73,12 @@ public class NwaUserModel implements Serializable {
     this.lastName = lastName;
   }
 
-  public String getPassword() {
-    return password;
+  public String getPassphrase() {
+    return passphrase;
   }
 
-  public void setPassword(String password) {
-    this.password = password;
+  public void setPassphrase(String passphrase) {
+    this.passphrase = passphrase;
   }
 
   public String getEmail() {

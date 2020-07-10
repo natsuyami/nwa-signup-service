@@ -31,11 +31,7 @@ public class NwaUserDetailsDto implements Serializable {
 
   @NotNull
   @JsonInclude(Include.NON_NULL)
-  private String password;
-
-  @NotNull
-  @JsonInclude(Include.NON_NULL)
-  private String confirmPassword;
+  private String passphrase;
 
   @NotNull
   @JsonInclude(Include.NON_NULL)
@@ -81,20 +77,12 @@ public class NwaUserDetailsDto implements Serializable {
     this.email = email;
   }
 
-  public String getPassword() {
-    return password;
+  public String getPassphrase() {
+    return passphrase;
   }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getConfirmPassword() {
-    return confirmPassword;
-  }
-
-  public void setConfirmPassword(String confirmPassword) {
-    this.confirmPassword = confirmPassword;
+  public void setPassphrase(String passphrase) {
+    this.passphrase = passphrase;
   }
 
   public String getPasscode() {
@@ -117,10 +105,8 @@ public class NwaUserDetailsDto implements Serializable {
     builder.append(firstName);
     builder.append("\", \"lastName\" : \"");
     builder.append(lastName);
-    builder.append("\", \"password\" : \"");
-    builder.append(password);
-    builder.append("\", \"confirmPassword\" : \"");
-    builder.append(confirmPassword);
+    builder.append("\", \"passphrase\" : \"");
+    builder.append(passphrase);
     builder.append("\", \"passcode\" : \"");
     builder.append(passcode);
     builder.append("\"}");

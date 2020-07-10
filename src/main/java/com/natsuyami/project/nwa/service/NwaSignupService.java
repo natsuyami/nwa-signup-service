@@ -57,18 +57,19 @@ public class NwaSignupService {
     LOGGER.info("Initialized signup service, signup details signupDto={{}}", signupDto);
 
     // login to keycloak
-    BodyInserters.FormInserter bodyParam = nwaRestTemplate.createToken(clientId, clientSecret, accountUsername, accountPassword);
+    BodyInserters.FormInserter bodyParam = nwaRestTemplate.kcTokenCred(clientId, clientSecret, accountUsername, accountPassword);
     NwaTokenDto token = nwaRestTemplate.post("http://localhost:8080/auth/realms/NWASpringBoot/protocol/openid-connect/token", bodyParam, NwaContentType.URL_ENCODED, null, NwaTokenDto.class);
 
     try {
       if (token != null) {
         NwaUserDetailsDto validateSignupDto = validateUserDetails(signupDto);
-        validateSignupDto.setPassword(NwaPasswordEncrypt.encrypt(signupDto.getPassword(), String.valueOf(signupDto.getPasscode())));
+        String[] hashVal = NwaPasswordEncrypt.originalEncryption(signupDto.getPassphrase(), String.valueOf(signupDto.getPasscode()));
+        validateSignupDto.setPassphrase(NwaPasswordEncrypt.encrypt(hashVal[0], hashVal[1]));
+
         NwaUserModel save = saveUser(validateSignupDto);
 
         if (save != null) {
-          String[] hashVal = NwaPasswordEncrypt.originalEncryption(signupDto.getPassword(), String.valueOf(signupDto.getPasscode()));
-          save.setPassword(hashVal[0].concat(".").concat(hashVal[1]));
+          save.setPassphrase(hashVal[0].concat(".").concat(hashVal[1]));
           saveInKeycloak(save, token);
         } else {
           throw new Exception("Failed to create user details");
@@ -127,16 +128,13 @@ public class NwaSignupService {
         throw new Exception("Username is required");
       }
 
-      //decrypt password first before validate
-      if (StringUtils.isNotBlank(signupDto.getPassword()) && StringUtils.isNotBlank(signupDto.getConfirmPassword())) {
-        signupDto.setPassword(NwaContentEncyption.decrypt(signupDto.getPassword(), privateKey));
-        signupDto.setConfirmPassword(NwaContentEncyption.decrypt(signupDto.getConfirmPassword(), privateKey));
+      //decrypt passphrase first before validate
+      if (StringUtils.isNotBlank(signupDto.getPassphrase())) {
+        signupDto.setPassphrase(NwaContentEncyption.decrypt(signupDto.getPassphrase(), privateKey));
 
-        if (!signupDto.getPassword().equals(signupDto.getConfirmPassword())) {
-          throw new Exception("Password does not match");
-        } else if (signupDto.getPassword().length() < 5 || specialCharNumLet.matcher(signupDto.getPassword()).find() == false) {
+        if (signupDto.getPassphrase().length() < 5 || specialCharNumLet.matcher(signupDto.getPassphrase()).find() == false) {
           throw new Exception("Password must have a special character, number, upper and lower letter");
-        } else {}
+        }
       } else {
         throw new Exception("Password is required");
       }
@@ -164,7 +162,7 @@ public class NwaSignupService {
     userModel.setEmail(signupDto.getEmail());
     userModel.setFirstName(signupDto.getFirstName());
     userModel.setLastName(signupDto.getLastName());
-    userModel.setPassword(signupDto.getPassword());
+    userModel.setPassphrase(signupDto.getPassphrase());
 
     return nwaUserRepository.save(userModel);
   }
@@ -181,7 +179,7 @@ public class NwaSignupService {
 
     NwaCredentialDto credential = new NwaCredentialDto();
     credential.setType(GRANT_TYPE);
-    credential.setValue(user.getPassword());
+    credential.setValue(user.getPassphrase());
     credential.setTemporary(false);
 
     ArrayList<NwaCredentialDto> credentials = new ArrayList<NwaCredentialDto>();

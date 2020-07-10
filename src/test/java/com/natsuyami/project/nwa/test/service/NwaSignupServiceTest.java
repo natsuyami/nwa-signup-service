@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
@@ -51,8 +50,7 @@ public class NwaSignupServiceTest {
     signupDto.setFirstName(null);
     signupDto.setLastName(null);
     signupDto.setPasscode(NwaContentEncyption.encrypt("12314", publicKey));
-    signupDto.setPassword(NwaContentEncyption.encrypt("Password", publicKey));
-    signupDto.setConfirmPassword(NwaContentEncyption.encrypt("Password", publicKey));
+    signupDto.setPassphrase(NwaContentEncyption.encrypt("Password", publicKey));
   }
 
   @Test
@@ -99,8 +97,7 @@ public class NwaSignupServiceTest {
     signupDto.setEmail(NwaContentEncyption.encrypt("bunquinryan@gmail.com", publicKey));
     signupDto.setUsername(NwaContentEncyption.encrypt("Test1234", publicKey));
     signupDto.setPasscode(NwaContentEncyption.encrypt("123456", publicKey));
-    signupDto.setPassword(NwaContentEncyption.encrypt("Password", publicKey));
-    signupDto.setConfirmPassword(NwaContentEncyption.encrypt("Password", publicKey));
+    signupDto.setPassphrase(NwaContentEncyption.encrypt("Password", publicKey));
     try {
       nwaSignupService.validateUserDetails(signupDto);
     } catch (Exception e) {
@@ -110,8 +107,7 @@ public class NwaSignupServiceTest {
     signupDto.setEmail(NwaContentEncyption.encrypt("bunquinryan@gmail.com", publicKey));
     signupDto.setUsername(NwaContentEncyption.encrypt("Test1234", publicKey));
     signupDto.setPasscode(NwaContentEncyption.encrypt("123456", publicKey));
-    signupDto.setPassword(NwaContentEncyption.encrypt("Password!234", publicKey));
-    signupDto.setConfirmPassword(NwaContentEncyption.encrypt("Password!234", publicKey));
+    signupDto.setPassphrase(NwaContentEncyption.encrypt("Password!234", publicKey));
     nwaSignupService.validateUserDetails(signupDto);
   }
 }
